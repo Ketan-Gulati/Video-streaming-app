@@ -1,7 +1,7 @@
 import  {asyncHandler} from "../utils/asyncHandler.js"
 import {ApiError} from "../utils/ApiError.js"
-import {User} from "../models/user.models"
-import {uploadOnCloudinary} from "../utils/cloudinary"
+import {User} from "../models/user.models.js"
+import {uploadOnCloudinary} from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 
 const registerUser = asyncHandler(async(req,res)=>{
@@ -19,18 +19,19 @@ const registerUser = asyncHandler(async(req,res)=>{
     //check for user creation
     //return res
 
-    const {fullName, userName, email, password} = req.body   //to get data from form submissions and json , we used multer in user route for file uploads
-    console.log("email", email);
+    console.log(req.body);
 
+    const {fullName, userName, email, password} = req.body   //to get data from form submissions and json , we used multer in user route for file uploads
+    
     //to check if any field is empty
     if([fullName,userName,email,password].some((field)=>(
-        field.trim() === ""
+        field.trim()=== ""
     ))){
         throw new ApiError(400,"All fields are required")
     }
 
     //check if user with username or email prior exists
-    const existedUser = User.findOne({
+    const existedUser =  await User.findOne({
         $or : [{ userName }, { email }]     //OR operator parameter
     })
     if(existedUser){
@@ -39,7 +40,13 @@ const registerUser = asyncHandler(async(req,res)=>{
 
     //check for images
     const avatarLocalPath = req.files?.avatar[0]?.path     //files prop is brought by multer
-    const coverImageLocalPath = req.files?.coverImage[0]?.path
+    // const coverImageLocalPath = req.files?.coverImage[0]?.path
+
+    let coverImageLocalPath=""                                                //corrected method to check for coverImage path
+    if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length>0){
+        coverImageLocalPath = req.files.coverImage[0].path
+    }
+
     //additional check for avatar because it's required
     if(!avatarLocalPath){
         throw new ApiError(400,"Avatar is required")
@@ -54,12 +61,13 @@ const registerUser = asyncHandler(async(req,res)=>{
     }
 
     //create an entry in db
-   const user = User.create({
+   const user = await User.create({
         fullName,
         avatar : avatar.url,
         coverImage : coverImage?.url || "",  //because it is not compulsory
         password : password,
-        userName : userName.toLowerCase()
+        userName : userName.toLowerCase(),
+        email : email
     })
 
     //check if user got created and also de-select password and refresh token using .select method
@@ -72,7 +80,7 @@ const registerUser = asyncHandler(async(req,res)=>{
 
     //return response
     return res.status(201).json(
-        new ApiResponse(200,createdUser,"User hasbeen registered successfully")
+        new ApiResponse(200,createdUser,"User has been registered successfully")
     )
 })  
 
