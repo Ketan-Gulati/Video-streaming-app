@@ -264,7 +264,7 @@ const updateUserDetails = asyncHandler(async(req,res)=>{
         throw new ApiError(400, "Name and email are required")
     }
 
-    User.findByIdAndUpdate(req.user?._id,
+    const user = await User.findByIdAndUpdate(req.user?._id,
         {
             $set : {
                 fullName : fullName,
@@ -295,7 +295,7 @@ const updateUserAvatar = asyncHandler(async(req,res)=>{
         throw new ApiError(500,"Error while uploading avatar")
     }
 
-    const user = await User.findByIdAndUpdate(req.user._id,
+    const user = await User.findByIdAndUpdate(req.user?._id,
         {
             $set : {
                 avatar : avatar.url
@@ -326,7 +326,7 @@ const updateUserCoverImage = asyncHandler(async(req,res)=>{
         throw new ApiError(500,"Error while uploading CoverImage")
     }
 
-    const user = await User.findByIdAndUpdate(req.user._id,
+    const user = await User.findByIdAndUpdate(req.user?._id,
         {
             $set : {
                 CoverImage : CoverImage.url
