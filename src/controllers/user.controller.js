@@ -207,7 +207,7 @@ const refreshAccessToken = asyncHandler(async(req,res)=>{
             throw new ApiError(401,"Refresh token is either invalid or used")
         }
         
-        const {accessToken, newRefreshToken} = await generateAccessAndRefreshToken(user._id)
+        const {newAccessToken, newRefreshToken} = await generateAccessAndRefreshToken(user._id)
     
         options = {                 // options can be declared globally because they are being used many times
             httpOnly : true,       
@@ -216,12 +216,12 @@ const refreshAccessToken = asyncHandler(async(req,res)=>{
     
         return res
         .status(200)
-        .cookie("access token",accessToken,options)
+        .cookie("access token",newAccessTokenccessToken,options)
         .cookie("refresh token",newRefreshToken,options)
         .json(
             new ApiResponse(
                 200,
-                {accessToken, refreshToken : newRefreshToken},
+                {accessToken : newAccessToken, refreshToken : newRefreshToken},
                 "Access token refreshed"
             )
         )
