@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate";
 
 const videoSchema =  new mongoose.Schema({
-    viddeoFile : {
+    videoFile : {
         type:String,  // cloudinary url
         required:true
     },

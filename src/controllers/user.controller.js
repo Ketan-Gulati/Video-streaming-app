@@ -22,6 +22,20 @@ const generateAccessAndRefreshToken = async(userId)=>{
     }
 }
 
+//method to generate only access token
+const generateAccessToken = async(userId)=>{
+    try {
+        const user = await User.findById(userId)
+        const accessToken = await user.generateAccessToken()
+
+        return {accessToken}
+    } catch (error) {
+        throw new ApiError(500,"Something went wrong while generating tokens")
+    }
+}
+
+
+
 //register controller
 const registerUser = asyncHandler(async(req,res)=>{
     /* res.status(200).json({
@@ -40,7 +54,7 @@ const registerUser = asyncHandler(async(req,res)=>{
 
     // console.log(req.body);
 
-    const {fullName, userName, email, password} = req.body   //to get data from form submissions and json , we used multer in user route for file uploads
+    const {fullName, userName, email, password} = req.body   //to get data from form submissions and json. Also we used multer in user route for file uploads
     
     //to check if any field is empty
     if([fullName,userName,email,password].some((field)=>(
@@ -208,7 +222,7 @@ const refreshAccessToken = asyncHandler(async(req,res)=>{
             throw new ApiError(401,"Refresh token is either invalid or used")
         }
         
-        const {newAccessToken, newRefreshToken} = await generateAccessAndRefreshToken(user._id)
+        const {newAccessToken} = await generateAccessToken(user._id)
     
         options = {                 // options can be declared globally because they are being used many times
             httpOnly : true,       
@@ -217,12 +231,12 @@ const refreshAccessToken = asyncHandler(async(req,res)=>{
     
         return res
         .status(200)
-        .cookie("access token",newAccessTokenccessToken,options)
-        .cookie("refresh token",newRefreshToken,options)
+        .cookie("access token",newAccessToken,options)
+        .cookie("refresh token",incomingRefreshToken,options)
         .json(
             new ApiResponse(
                 200,
-                {accessToken : newAccessToken, refreshToken : newRefreshToken},
+                {accessToken : newAccessToken, refreshToken : incomingRefreshToken},
                 "Access token refreshed"
             )
         )
@@ -315,7 +329,7 @@ const updateUserAvatar = asyncHandler(async(req,res)=>{
 
 //controller to update cover image
 const updateUserCoverImage = asyncHandler(async(req,res)=>{
-    const userCoverImage = req.file?.avatar
+    const userCoverImage = req.file?.coverImage
 
     if(!userCoverImage){
         throw new ApiError(400,"CoverImage is missing")
@@ -344,7 +358,7 @@ const updateUserCoverImage = asyncHandler(async(req,res)=>{
     .json(ApiResponse(200, "CoverImage has been updated successfully"))
 })
 
-//aggregation pipelines
+//aggregation pipelines to get user channel profile
 const getUserChannelProfile = asyncHandler(async(req,res)=>{
     const {userName} = req.params            // get username from url
 
@@ -354,8 +368,8 @@ const getUserChannelProfile = asyncHandler(async(req,res)=>{
 
     const channel = await User.aggregate([
         {
-            $match : {
-                userName : userName.toLowerCase()
+            $match : {                   // filtered one document(ieof one user)
+                userName : userName?.toLowerCase()
             }
         },
         {
@@ -428,14 +442,14 @@ const getUserWatchHistory = asyncHandler(async(req,res)=>{
                 localField : "watchHistory",
                 foreignField : "_id",
                 as : "watchHistory",
-                pipeline : [
+                pipeline : [              //subpipeline to get owner details
                     {
-                        $lookup : {
+                        $lookup : {           
                             from : "user",
                             localField : "owner",
                             foreignField : "_id",
                             as : "owner",
-                            pipeline : [
+                            pipeline : [     //to just apply project on owner
                                 {
                                     $project : {
                                         fullName : 1,
