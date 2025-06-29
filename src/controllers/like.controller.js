@@ -186,6 +186,7 @@ const getLikedVideos = asyncHandler(async (req, res) => {
                 duration : "$likedVideos.duration",
                 views : "$likedVideos.views",
                 isPublished : "$likedVideos.isPublished",
+                createdAt : 1,
                 owner : {
                     _id: "$ownerDetails._id",
                     fullName: "$ownerDetails.fullName",
