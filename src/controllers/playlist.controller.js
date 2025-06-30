@@ -38,15 +38,17 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
 
     const playlists = await Playlist.find({owner : userId})
 
-    if(!playlists || playlists.length===0){
+    const totalPlaylists = await Playlist.countDocuments({ owner: userId });
+
+    if(playlists.length===0){
         return res
         .status(200)
-        .json(new ApiResponse(200,[],"No playlists found"))
+        .json(new ApiResponse(200,{playlists:[],totalPlaylists},"No playlists found"))
     }
 
     return res
     .status(200)
-    .json(new ApiResponse(200,playlists,"playlists fetched successfully"))
+    .json(new ApiResponse(200,{playlists, totalPlaylists},"playlists fetched successfully"))
 })
 
 const getPlaylistById = asyncHandler(async (req, res) => {
