@@ -1,6 +1,5 @@
 import mongoose, {isValidObjectId} from "mongoose"
-import {User} from "../models/user.model.js"
-import { Subscription } from "../models/subscription.model.js"
+import { Subscriptions } from "../models/subscription.model.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
@@ -28,20 +27,20 @@ const toggleSubscription = asyncHandler(async (req, res) => {
         throw new ApiError(400,"You can not subscribe to self")
     }
 
-    const existingSubscription = await Subscription.findOne({    // to check for existing subscription
+    const existingSubscription = await Subscriptions.findOne({    // to check for existing subscription
         channel:channelId,
         subscriber:subscriberId
     })
 
     if(existingSubscription){                                          //unsubscribe
-        await Subscription.deleteOne({_id: existingSubscription._id})
+        await Subscriptions.deleteOne({_id: existingSubscription._id})
 
         return res
         .status(200)
         .json(new ApiResponse(200,{},"Unsubscribed successfully"))
     }
                                                                 //subscribe
-    await Subscription.create(
+    await Subscriptions.create(
         {
             channel:channelId,
             subscriber:subscriberId
@@ -66,7 +65,7 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
         throw new ApiError(400,"Channel not found")
     }
 
-    const subscribers = await Subscription.aggregate([    
+    const subscribers = await Subscriptions.aggregate([    
         {
             $match : {                                            // matching channel id with channel
                 channel : mongoose.Types.ObjectId(channelId)       //  since MongoDB _id and references are stored as ObjectId, we need to convert the string channelId to a proper ObjectId.
@@ -112,7 +111,7 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
         throw new ApiError(400,"Subscriber id not valid")
     }
 
-    const channels = await Subscription.aggregate([
+    const channels = await Subscriptions.aggregate([
         {
             $match : {
                 subscriber : mongoose.Types.ObjectId(subscriberId)
