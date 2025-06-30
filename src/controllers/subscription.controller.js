@@ -4,7 +4,7 @@ import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
 
-
+//status:working
 const toggleSubscription = asyncHandler(async (req, res) => {
     
     // TODO: toggle subscription
@@ -20,7 +20,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
     const subscriberId = req.user._id
 
     if(!mongoose.Types.ObjectId.isValid(channelId)){            // to verify that channel id is a valid mongodb objectID
-        throw new ApiError(400,"Channel does not exist")
+        throw new ApiError(404,"Channel does not exist")
     }
 
     if(channelId.toString()===subscriberId.toString()){        //to check for self-subscription
@@ -53,6 +53,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
     
 })
 
+//status:working
 // controller to return subscriber list of a channel
 const getUserChannelSubscribers = asyncHandler(async (req, res) => {
 
@@ -61,14 +62,14 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
     //apply aggregation queries
     const {channelId} = req.params
 
-    if(!mongoose.Types.ObjectId.isValid(channelId)){        //checking if channel id is valid
+    if(! mongoose.Types.ObjectId.isValid(channelId)){        //checking if channel id is valid
         throw new ApiError(400,"Channel not found")
     }
 
     const subscribers = await Subscriptions.aggregate([    
         {
             $match : {                                            // matching channel id with channel
-                channel : mongoose.Types.ObjectId(channelId)       //  since MongoDB _id and references are stored as ObjectId, we need to convert the string channelId to a proper ObjectId.
+                channel : new mongoose.Types.ObjectId(channelId)       //  since MongoDB _id and references are stored as ObjectId, we need to convert the string channelId to a proper ObjectId.
             }
         },
         {
@@ -80,7 +81,7 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
             }
         },
         {
-            $unwind : "subscribersList"                    //converts array into individual objects or we can say documents
+            $unwind : "$subscribersList"                    //converts array into individual objects or we can say documents
         },
         {
             $project : {
@@ -97,6 +98,7 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, subscribers, "Subscribers fetched successfully"))
 })
 
+//status:working
 // controller to return channel list to which user has subscribed
 const getSubscribedChannels = asyncHandler(async (req, res) => {
 
@@ -114,7 +116,7 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
     const channels = await Subscriptions.aggregate([
         {
             $match : {
-                subscriber : mongoose.Types.ObjectId(subscriberId)
+                subscriber : new mongoose.Types.ObjectId(subscriberId)
             }
         },
         {
@@ -126,7 +128,7 @@ const getSubscribedChannels = asyncHandler(async (req, res) => {
             }
         },
         {
-            $unwind : "channelsList"
+            $unwind : "$channelsList"
         },
         {
             $project : {
