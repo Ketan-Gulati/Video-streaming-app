@@ -79,7 +79,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, result, "Videos fetched successfully"));
 });
 
-
+//status : working
 const publishAVideo = asyncHandler(async (req, res) => {
   const { title, description } = req.body;
 
@@ -142,6 +142,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, video, "Video has been uploaded successfully"));
 });
 
+//status : working
 const getVideoById = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
   //TODO: get video by id
@@ -155,6 +156,7 @@ const getVideoById = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, video, "Video fetched"));
 });
 
+//status : working
 const updateVideo = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
   //TODO: update video details like title, description, thumbnail
@@ -165,7 +167,7 @@ const updateVideo = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Title and description are required");
   }
 
-  const newThumbnail = req.file?.thumbnail;
+  const newThumbnail = req.file?.path;
 
   const uploadThumbnail = await uploadOnCloudinary(newThumbnail);
 
@@ -198,6 +200,7 @@ const updateVideo = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, "Video details have been updated"));
 });
 
+//status : working
 const deleteVideo = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
   //TODO: delete video
@@ -213,6 +216,7 @@ const deleteVideo = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, "Video has been deleted successfully"));
 });
 
+//status : working
 const togglePublishStatus = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
 
