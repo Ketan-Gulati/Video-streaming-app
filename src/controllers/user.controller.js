@@ -28,7 +28,7 @@ const generateAccessToken = async(userId)=>{
         const user = await User.findById(userId)
         const accessToken = await user.generateAccessToken()
 
-        return {accessToken}
+        return accessToken
     } catch (error) {
         throw new ApiError(500,"Something went wrong while generating tokens")
     }
@@ -36,7 +36,7 @@ const generateAccessToken = async(userId)=>{
 
 
 
-//register controller
+//register controller (working)
 const registerUser = asyncHandler(async(req,res)=>{
     /* res.status(200).json({
         message: "ok"
@@ -118,7 +118,7 @@ const registerUser = asyncHandler(async(req,res)=>{
 })  
 
 
-//login controller
+//login controller  (working)
 const loginUser = asyncHandler(async(req,res)=>{
     //req body => data
     //username or email
@@ -174,7 +174,7 @@ const loginUser = asyncHandler(async(req,res)=>{
     )
 })
 
-//logout controller
+//logout controller  (working)
 const logoutUser = asyncHandler(async(req,res)=>{
     await User.findByIdAndUpdate(req.user._id , 
         {
@@ -201,7 +201,7 @@ const logoutUser = asyncHandler(async(req,res)=>{
     )
 })
 
-//controller to refresh the access token
+//controller to refresh the access token  (working)
 const refreshAccessToken = asyncHandler(async(req,res)=>{
     const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
 
@@ -222,17 +222,17 @@ const refreshAccessToken = asyncHandler(async(req,res)=>{
             throw new ApiError(401,"Refresh token is either invalid or used")
         }
         
-        const {newAccessToken} = await generateAccessToken(user._id)
+        const newAccessToken = await generateAccessToken(user._id)
     
-        options = {                 // options can be declared globally because they are being used many times
+        const options = {                 // options can be declared globally because they are being used many times
             httpOnly : true,       
             secure : true
         }
     
         return res
         .status(200)
-        .cookie("access token",newAccessToken,options)
-        .cookie("refresh token",incomingRefreshToken,options)
+        .cookie("accessToken",newAccessToken,options)
+        .cookie("refreshToken",incomingRefreshToken,options)
         .json(
             new ApiResponse(
                 200,
@@ -246,7 +246,7 @@ const refreshAccessToken = asyncHandler(async(req,res)=>{
     }
 })
 
-//controller to change current password
+//controller to change current password  (working)
 const changeCurrentPassword = asyncHandler(async(req,res)=>{
     const {oldPassword, newPassword} = req.body
 
@@ -265,14 +265,14 @@ const changeCurrentPassword = asyncHandler(async(req,res)=>{
     .json(new ApiResponse(200, {}, "Password changed successfully"))
 })
 
-//controller to get current user
+//controller to get current user  (working)
 const getCurrentUser = asyncHandler(async(req,res)=>{
     return res
     .status(200)
     .json(new ApiResponse(200, req.user, "Current user fetched successfully"))
 })
 
-//controller to update user details (fullname and email)
+//controller to update user details (fullname and email)   (working)
 const updateUserDetails = asyncHandler(async(req,res)=>{
     const {fullName, email} = req.body
     if(!fullName || !email){
@@ -296,9 +296,9 @@ const updateUserDetails = asyncHandler(async(req,res)=>{
     .json(new ApiResponse(200, user, "Account details updated successfully"))
 })
 
-//controller to update avatar
+//controller to update avatar  (working)
 const updateUserAvatar = asyncHandler(async(req,res)=>{
-    const userAvatar = req.file?.avatar
+    const userAvatar = req.file?.path
 
     if(!userAvatar){
         throw new ApiError(400,"Avatar is missing")
@@ -324,12 +324,12 @@ const updateUserAvatar = asyncHandler(async(req,res)=>{
 
     return res
     .status(200)
-    .json(ApiResponse(200, "Avatar has been updated successfully"))
+    .json(new ApiResponse(200, "Avatar has been updated successfully"))
 })
 
-//controller to update cover image
+//controller to update cover image  (working)
 const updateUserCoverImage = asyncHandler(async(req,res)=>{
-    const userCoverImage = req.file?.coverImage
+    const userCoverImage = req.file?.path
 
     if(!userCoverImage){
         throw new ApiError(400,"CoverImage is missing")
@@ -355,10 +355,10 @@ const updateUserCoverImage = asyncHandler(async(req,res)=>{
 
     return res
     .status(200)
-    .json(ApiResponse(200, "CoverImage has been updated successfully"))
+    .json(new ApiResponse(200, "CoverImage has been updated successfully"))
 })
 
-//aggregation pipelines to get user channel profile
+//aggregation pipelines to get user channel profile  (working)
 const getUserChannelProfile = asyncHandler(async(req,res)=>{
     const {userName} = req.params            // get username from url
 
@@ -428,12 +428,12 @@ const getUserChannelProfile = asyncHandler(async(req,res)=>{
     .json(new ApiResponse(200, channel[0], "Channel has been fetched successfully"))
 })
 
-//controller for watch history using pipelines and sub-pipelines
+//controller for watch history using pipelines and sub-pipelines  (working)
 const getUserWatchHistory = asyncHandler(async(req,res)=>{
     const user = await User.aggregate([
         {
             $match : {
-                _id : mongoose.Types.ObjectId(req.user._id)
+                _id :new mongoose.Types.ObjectId(req.user._id)
             } 
         },
         {
