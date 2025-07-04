@@ -4,7 +4,7 @@ import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
 
-
+//status:working
 const createPlaylist = asyncHandler(async (req, res) => {
     //TODO: create playlist
     const {name, description} = req.body
@@ -30,6 +30,7 @@ const createPlaylist = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200,newPlaylist,"Playlist has been created successfully"))
 })
 
+//status:working
 const getUserPlaylists = asyncHandler(async (req, res) => {
     //TODO: get user playlists
 
@@ -51,6 +52,7 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200,{playlists, totalPlaylists},"playlists fetched successfully"))
 })
 
+//status:working
 const getPlaylistById = asyncHandler(async (req, res) => {
     //TODO: get playlist by id
 
@@ -63,7 +65,7 @@ const getPlaylistById = asyncHandler(async (req, res) => {
     const playlist = await Playlist.findById(playlistId)
                         .populate({
                             path: "videos",
-                            select: "title thumbnail duration views isPublished" // Add more fields as neede
+                            select: "title thumbnail duration views isPublished" // Add more fields as needed
                         })
     if(!playlist){
         throw new ApiError(404,"Playlist does not exist")
@@ -74,6 +76,7 @@ const getPlaylistById = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200,playlist,"Playlist fetched successfully"))
 })
 
+//status:working
 const addVideoToPlaylist = asyncHandler(async (req, res) => {
     const {playlistId, videoId} = req.params
 
@@ -110,6 +113,7 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200,updatedPlaylist,"Video added to playlist successfully"))
 })
 
+//status:working
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
     // TODO: remove video from playlist
 
@@ -145,6 +149,7 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200,updatedPlaylist,"Video deleted successfully"))
 })
 
+//status:working
 const deletePlaylist = asyncHandler(async (req, res) => {
     // TODO: delete playlist
 
@@ -174,6 +179,7 @@ const deletePlaylist = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200,{},"Playlist deleted successfully"))
 })
 
+//status:working
 const updatePlaylist = asyncHandler(async (req, res) => {
     //TODO: update playlist
 
