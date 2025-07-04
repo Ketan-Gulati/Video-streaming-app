@@ -4,6 +4,28 @@ import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
 
+//status:working
+const getAllCommunityPosts = asyncHandler(async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+
+  const posts = await CommunityPost.find({})
+    .sort({ createdAt: -1 }) // latest first
+    .skip((page - 1) * limit)
+    .limit(parseInt(limit))
+    .populate("owner", "fullName userName avatar"); // optional: to show user info
+
+  const totalPosts = await CommunityPost.countDocuments();
+
+  return res.status(200).json(
+    new ApiResponse(200, {
+      posts,
+      totalPages: Math.ceil(totalPosts / limit),
+      currentPage: Number(page),
+    }, "All community posts fetched successfully")
+  );
+});
+
+//status:working
 const createCommunityPost = asyncHandler(async (req, res) => {
     //TODO: create post
 
@@ -13,10 +35,6 @@ const createCommunityPost = asyncHandler(async (req, res) => {
     //create post
 
     const ownerId = req.user._id
-
-    if(!mongoose.Types.ObjectId.isValid(ownerId)){
-        throw new ApiError(400,"Invalid user")
-    }
 
     const {content} = req.body
 
@@ -38,6 +56,7 @@ const createCommunityPost = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200,post,"Community post created successfully"))
 })
 
+//status:working
 const getUserCommunityPost = asyncHandler(async (req, res) => {
     // TODO: get user posts
 
@@ -46,10 +65,6 @@ const getUserCommunityPost = asyncHandler(async (req, res) => {
     //find the owner and populate the fields
 
     const ownerId = req.user._id
-
-    if(!mongoose.Types.ObjectId.isValid(ownerId)){
-        throw new ApiError(400,"Invalid user")
-    }
 
     const posts = await CommunityPost.find({owner : ownerId}).populate("owner", "fullName userName avatar")
 
@@ -64,6 +79,7 @@ const getUserCommunityPost = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200,posts,"User posts have been fetched successfully"))
 })
 
+//status:working
 const updateCommunityPost = asyncHandler(async (req, res) => {
     //TODO: update post
 
@@ -119,6 +135,7 @@ const updateCommunityPost = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200,updatedPost,"Post has been updated successfully"))
 })
 
+//status:working
 const deleteCommunityPost = asyncHandler(async (req, res) => {
     //TODO: delete post
 
@@ -160,5 +177,6 @@ export {
     createCommunityPost,
     getUserCommunityPost,
     updateCommunityPost,
-    deleteCommunityPost
+    deleteCommunityPost,
+    getAllCommunityPosts
 }
