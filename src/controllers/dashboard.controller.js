@@ -6,6 +6,7 @@ import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
 
+//status:working
 const getChannelStats = asyncHandler(async (req, res) => {
     // TODO: Get the channel stats like total video views, total subscribers, total videos, total likes etc.
 
@@ -43,10 +44,11 @@ const getChannelStats = asyncHandler(async (req, res) => {
     );
 });
 
+//status:working
 const getChannelVideos = asyncHandler(async (req, res) => {
     // TODO: Get all the videos uploaded by the channel
 
-    const {channelId} = req.params
+    const channelId = req.user._id
     const {page = 1, limit = 10}  = req.query
     
     if(!mongoose.Types.ObjectId.isValid(channelId)){
