@@ -7,6 +7,7 @@ import { Video } from "../models/video.models.js";
 import { Comment } from "../models/comment.models.js"
 import { CommunityPost } from "../models/coomunityPost.models.js"
 
+//status:working
 const toggleVideoLike = asyncHandler(async (req, res) => {
     //TODO: toggle like on video
 
@@ -55,6 +56,7 @@ const toggleVideoLike = asyncHandler(async (req, res) => {
 
 })
 
+//status:working
 const toggleCommentLike = asyncHandler(async (req, res) => {
     //TODO: toggle like on comment
 
@@ -99,6 +101,7 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
     
 })
 
+//status:working
 const toggleCommunityPostLike = asyncHandler(async (req, res) => {
     //TODO: toggle like on communityPost
 
@@ -145,6 +148,7 @@ const toggleCommunityPostLike = asyncHandler(async (req, res) => {
 }
 )
 
+//status:working
 const getLikedVideos = asyncHandler(async (req, res) => {
     //TODO: get all liked videos
 
@@ -153,7 +157,7 @@ const getLikedVideos = asyncHandler(async (req, res) => {
     const likedVideos = await Like.aggregate([
         {
             $match : {
-                likedBy : mongoose.Types.ObjectId(userId)
+                likedBy : new mongoose.Types.ObjectId(userId)
             }
         },
         {
@@ -165,7 +169,7 @@ const getLikedVideos = asyncHandler(async (req, res) => {
             }
         },
         {
-            $unwind : "likedVideos"
+            $unwind : "$likedVideos"
         },
         {                                      //another lookup to get owner details of videos
             $lookup: {
@@ -176,7 +180,7 @@ const getLikedVideos = asyncHandler(async (req, res) => {
             }
         },
         {
-            $unwind : "ownerDetails"
+            $unwind : "$ownerDetails"
         },
         {
             $project : {
